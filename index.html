@@ -279,7 +279,7 @@
   ];
 
   /* 파일 이름 규칙 찾기: prefix 대소문자나 확장자(jpg/png)가 조금 달라도 1~3번 이미지로 맞는 규칙을 알아냄 */
-  var EXTS = ["jpg", "png", "jpeg"];
+  var EXTS = ["png", "jpg", "jpeg"];
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
   function srcOf(p, c, n) { return p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
   function probe(p, done) {
@@ -328,7 +328,7 @@
     var wrap = el("div", "long-image");
     var missing = el("p", "missing");
     missing.hidden = true;
-    missing.appendChild(document.createTextNode(p.folder + "/" + p.prefix + "-01.jpg 처럼 이미지 파일을 넣으면"));
+    missing.appendChild(document.createTextNode(p.folder + "/" + p.prefix + "-01.png 처럼 이미지 파일을 넣으면"));
     missing.appendChild(document.createElement("br"));
     missing.appendChild(document.createTextNode("이 자리에 이미지가 표시됩니다."));
     wrap.appendChild(missing);
@@ -349,7 +349,7 @@
     var prev = PROJECTS[i - 1], next = PROJECTS[i + 1];
     var pager = el("div", "pager latin");
     if (prev) pager.appendChild(link("#" + prev.id, "← Prev: " + prev.name));
-    pager.appendChild(next ? link("#" + next.id, "Next: " + next.name + " →") : link("#", "Home →"));
+    if (next) pager.appendChild(link("#" + next.id, "Next: " + next.name + " →"));
     view.appendChild(pager);
 
     document.title = p.name + " · EunjiWoo";
