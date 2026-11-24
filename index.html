@@ -127,7 +127,7 @@
   .is-leaving { opacity: 0; }
   .is-entering { animation: viewIn .5s cubic-bezier(.2,.7,.2,1) both; }
   @keyframes viewIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  .long-image { width: 100%; max-width: none; margin: 0; background: #fff; } /* 좌우 여백 없이 화면 가득 */
+  .long-image { max-width: 1200px; margin: 0 auto; background: #f4f4f4; }
   .long-image img { display: block; width: 100%; height: auto; } /* 긴 이미지를 잘라내지 않고 그대로 이어서 스크롤 */
   .missing { padding: 160px 24px; text-align: center; font-size: 16px; line-height: 1.7; color: rgba(0,0,0,.5); }
   .pager {
@@ -137,6 +137,37 @@
   .pager a { font-weight: 500; font-size: 16px; color: var(--text); text-decoration: none; opacity: .2; transition: opacity .2s ease; }
   .pager a:hover, .pager a:focus-visible { opacity: 1; }
   .pager a:last-child { margin-left: auto; } /* 이전 링크가 없어도 '다음'은 오른쪽에 */
+
+
+  /* Intro splash: 첫 진입 시 이름이 떠오른 뒤 화면이 위로 걷히며 홈 요소가 순서대로 등장 */
+  #splash {
+    position: fixed; inset: 0; z-index: 100; background: #000; color: #fff;
+    display: grid; place-items: center;
+    transition: transform .9s cubic-bezier(.77,0,.18,1);
+  }
+  #splash .mark { overflow: hidden; text-align: center; }
+  #splash .mark span {
+    display: block; font-weight: 700; font-size: clamp(32px, 5vw, 64px); letter-spacing: -.02em;
+    transform: translateY(110%); animation: markUp .8s .15s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  #splash .sub {
+    margin-top: 14px; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; opacity: 0;
+    animation: fadeIn .6s .7s ease forwards; text-align: center; color: rgba(255,255,255,.6);
+  }
+  #splash.is-out { transform: translateY(-100%); }
+  @keyframes markUp { to { transform: none; } }
+  @keyframes fadeIn { to { opacity: 1; } }
+  body.splashing { overflow: hidden; }
+  body.splashing header { opacity: 0; }
+  header { transition: opacity .6s ease; }
+
+  /* 홈 요소 순차 등장 (splash가 걷힌 뒤) */
+  .reveal-in { opacity: 0; transform: translateY(24px); }
+  body.entered .reveal-in {
+    animation: riseIn .8s cubic-bezier(.2,.7,.2,1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
   /* Footer */
   footer {
@@ -163,12 +194,18 @@
   @media (prefers-reduced-motion: reduce) {
     .card > img, .card .dim, .card .dim > *, header, nav a, .pager a, #home, #project { transition: none !important; }
     .is-entering { animation: none; }
+    #splash { display: none; }
+    .reveal-in { opacity: 1; transform: none; animation: none !important; }
     .card:hover > img { transform: none; }
     .card .dim > * { transform: none; }
   }
 </style>
 </head>
 <body>
+
+<div id="splash" aria-hidden="true">
+  <div><div class="mark latin"><span>EunjiWoo</span></div><p class="sub latin">Product Designer Portfolio</p></div>
+</div>
 
 <header>
   <a class="brand latin" href="#">EunjiWoo</a>
@@ -197,60 +234,60 @@
   </section>
 
   <!--
-    프로젝트 썸네일 6개. (assets 폴더 없이 저장소 맨 앞에 바로 둡니다)
-    - 썸네일 이미지: thumnail/thumb_이름.png
-    - 호버 로고: logo-XX-이름.png (흰색/밝은색 로고, 투명 배경 PNG·SVG 권장). 없으면 프로젝트명이 글자로 대신 보입니다.
+    프로젝트 썸네일 6개.
+    - 썸네일 이미지: assets/thumnail/thumb_이름.png
+    - 호버 로고: assets/logo-XX-이름.png (흰색/밝은색 로고, 투명 배경 PNG·SVG 권장). 없으면 프로젝트명이 글자로 대신 보입니다.
     - 호버 제목(dim-title)과 플랫폼(dim-platform) 문구는 아래에서 직접 수정하세요.
     - 클릭하면 같은 페이지 안의 상세 화면(#boogie 등)으로 전환됩니다. (아래 PROJECTS 참고)
   -->
   <ul class="grid">
     <li><a class="card" href="#boogie" style="--tile:#c8c8c8" aria-label="Boogie 프로젝트 상세 보기">
       <span class="ph">01 Boogie</span>
-      <img src="thumnail/thumb_boogie.png" alt="Boogie 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_boogie.png" alt="Boogie 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-01-boogie.png" alt="Boogie" data-name="Boogie" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">파킨슨병 환자의 일상적 관리를 돕는<br>AR 댄스 게이미피케이션 서비스</span>
+        <img class="dim-logo" src="assets/logo-01-boogie.png" alt="Boogie" data-name="Boogie" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">파킨슨병 환자의 일상적 운동을 돕는<br>AR 댄스 게임 서비스</span>
         <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#coexist" style="--tile:#dee4ec" aria-label="Coexist 프로젝트 상세 보기">
       <span class="ph">02 Coexist</span>
-      <img src="thumnail/thumb_coexist.png" alt="Coexist 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_coexist.png" alt="Coexist 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-02-coexist.png" alt="Coexist" data-name="Coexist" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">프로젝트 한 줄 소개를<br>입력하세요</span> <!-- TODO -->
-        <span class="dim-platform latin">Mobile App</span> <!-- TODO: 실제 플랫폼으로 수정 -->
+        <img class="dim-logo" src="assets/logo-02-coexist.png" alt="Coexist" data-name="Coexist" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">홍익대 산업디자인과 졸업전시<br>웹사이트 디자인</span>
+        <span class="dim-platform latin">Website</span>
       </span></a></li>
     <li><a class="card" href="#amo" style="--tile:#ebebeb" aria-label="A.Mo 프로젝트 상세 보기">
       <span class="ph">03 A.Mo</span>
-      <img src="thumnail/thumb_A.Mo.png" alt="A.Mo 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_A.Mo.png" alt="A.Mo 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-03-amo.png" alt="A.Mo" data-name="A.Mo" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">프로젝트 한 줄 소개를<br>입력하세요</span> <!-- TODO -->
-        <span class="dim-platform latin">Mobile App</span> <!-- TODO: 실제 플랫폼으로 수정 -->
+        <img class="dim-logo" src="assets/logo-03-amo.png" alt="A.Mo" data-name="A.Mo" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">미국 오스틴의 통근자를 위한<br>심리스 모빌리티 앱</span>
+        <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#cleanet" style="--tile:linear-gradient(180deg,#808286,#e2e5ec)" aria-label="Cleanet 프로젝트 상세 보기">
       <span class="ph">04 Cleanet</span>
-      <img src="thumnail/thumb_Cleanet.png" alt="Cleanet 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_Cleanet.png" alt="Cleanet 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-04-cleanet.png" alt="Cleanet" data-name="Cleanet" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">프로젝트 한 줄 소개를<br>입력하세요</span> <!-- TODO -->
-        <span class="dim-platform latin">Mobile App</span> <!-- TODO: 실제 플랫폼으로 수정 -->
+        <img class="dim-logo" src="assets/logo-04-cleanet.png" alt="Cleanet" data-name="Cleanet" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">1인 청년 가구를 위한<br>청소 관리 모바일 App</span>
+        <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#moa" style="--tile:#c8c8c8" aria-label="moa 프로젝트 상세 보기">
       <span class="ph">05 moa</span>
-      <img src="thumnail/thumb_moa.png" alt="moa 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_moa.png" alt="moa 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-05-moa.png" alt="moa" data-name="moa" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">프로젝트 한 줄 소개를<br>입력하세요</span> <!-- TODO -->
-        <span class="dim-platform latin">Mobile App</span> <!-- TODO: 실제 플랫폼으로 수정 -->
+        <img class="dim-logo" src="assets/logo-05-moa.png" alt="moa" data-name="moa" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">7080 시니어의 일상을 돕는<br>AR 글래스 기반 AI 홈 어시스턴트</span>
+        <span class="dim-platform latin">AR Glasses</span>
       </span></a></li>
     <li><a class="card" href="#beti" style="--tile:#c8c8c8" aria-label="Beti 프로젝트 상세 보기">
       <span class="ph">06 Beti</span>
-      <img src="thumnail/thumb_Beti.png" alt="Beti 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_Beti.png" alt="Beti 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
       <span class="dim">
-        <img class="dim-logo" src="logo-06-beti.png" alt="Beti" data-name="Beti" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
-        <span class="dim-title">프로젝트 한 줄 소개를<br>입력하세요</span> <!-- TODO -->
-        <span class="dim-platform latin">Mobile App</span> <!-- TODO: 실제 플랫폼으로 수정 -->
+        <img class="dim-logo" src="assets/logo-06-beti.png" alt="Beti" data-name="Beti" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <span class="dim-title">임산부와 태아의 교감을 돕는<br>헬스케어 제품 디스플레이 디자인</span>
+        <span class="dim-platform latin">Product Display</span>
       </span></a></li>
   </ul>
 </main>
@@ -264,10 +301,10 @@
   /*
     프로젝트 상세 화면 데이터. 순서가 이전/다음 링크 순서가 됩니다.
     - id:     주소(#id)와 같습니다. 썸네일의 href="#id"와 맞춰주세요.
-    - folder: 저장소 맨 앞에 있는 프로젝트 폴더 이름 (대소문자까지 똑같이)
+    - folder: assets 안의 프로젝트 폴더 이름 (대소문자까지 똑같이)
     - prefix: 파일 이름 앞부분. 예) Beti-01.jpg → "Beti"
     - count:  1번부터 몇 번까지 찾아볼지. 중간에 빠진 번호나 없는 파일은 자동으로 건너뜁니다.
-    상세 이미지는 폴더/prefix-01.jpg, -02.jpg … 순서대로 위에서 아래로 이어 붙어 보입니다.
+    상세 이미지는 assets/폴더/prefix-01.jpg, -02.jpg … 순서대로 위에서 아래로 이어 붙어 보입니다.
   */
   var PROJECTS = [
     { id: "boogie",  name: "Boogie",  folder: "boogie",  prefix: "boogie",  count: 40 },
@@ -279,9 +316,9 @@
   ];
 
   /* 파일 이름 규칙 찾기: prefix 대소문자나 확장자(jpg/png)가 조금 달라도 1~3번 이미지로 맞는 규칙을 알아냄 */
-  var EXTS = ["png", "jpg", "jpeg"];
+  var EXTS = ["jpg", "png", "jpeg"];
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
-  function srcOf(p, c, n) { return p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
+  function srcOf(p, c, n) { return "assets/" + p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
   function probe(p, done) {
     var tries = [], seen = {};
     for (var n = 1; n <= 3; n++) {
@@ -328,7 +365,7 @@
     var wrap = el("div", "long-image");
     var missing = el("p", "missing");
     missing.hidden = true;
-    missing.appendChild(document.createTextNode(p.folder + "/" + p.prefix + "-01.png 처럼 이미지 파일을 넣으면"));
+    missing.appendChild(document.createTextNode("assets/" + p.folder + "/" + p.prefix + "-01.jpg 처럼 이미지 파일을 넣으면"));
     missing.appendChild(document.createElement("br"));
     missing.appendChild(document.createTextNode("이 자리에 이미지가 표시됩니다."));
     wrap.appendChild(missing);
@@ -349,7 +386,7 @@
     var prev = PROJECTS[i - 1], next = PROJECTS[i + 1];
     var pager = el("div", "pager latin");
     if (prev) pager.appendChild(link("#" + prev.id, "← Prev: " + prev.name));
-    if (next) pager.appendChild(link("#" + next.id, "Next: " + next.name + " →"));
+    pager.appendChild(next ? link("#" + next.id, "Next: " + next.name + " →") : link("#", "Home →"));
     view.appendChild(pager);
 
     document.title = p.name + " · EunjiWoo";
@@ -433,6 +470,23 @@
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.addEventListener("hashchange", function () { route(); });
   route(true);
+
+  /* 진입 모션: 처음 접속했을 때만 splash → 홈 요소 순차 등장 */
+  (function () {
+    var splash = document.getElementById("splash");
+    var isHome = !location.hash || location.hash === "#";
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var items = [].slice.call(document.querySelectorAll(".intro h1, .intro .skills, .grid > li"));
+    items.forEach(function (el, i) { el.classList.add("reveal-in"); el.style.setProperty("--i", i); });
+    if (!isHome || reduce) { splash.remove(); document.body.classList.add("entered"); return; }
+    document.body.classList.add("splashing");
+    setTimeout(function () {
+      splash.classList.add("is-out");
+      document.body.classList.remove("splashing");
+      setTimeout(function () { document.body.classList.add("entered"); }, 350);
+      setTimeout(function () { splash.remove(); }, 1000);
+    }, 1600);
+  })();
 </script>
 
 </body>
