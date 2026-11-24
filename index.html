@@ -200,6 +200,19 @@
     .card .dim > * { transform: none; }
   }
 </style>
+<script>
+/* 이미지가 assets/ 안에 없으면 저장소 맨 위(루트) 등 다른 위치도 차례로 찾아봄 */
+function fb(im, kind) {
+  var file = im.getAttribute("src").split("/").pop();
+  var dirs = kind === "t" ? ["thumnail/", "thumbnail/", "", "assets/thumbnail/"] : [""];
+  var i = +(im.dataset.i || 0);
+  if (i < dirs.length) { im.dataset.i = i + 1; im.src = dirs[i] + file; return; }
+  if (kind === "t") { im.remove(); return; }
+  var t = document.createElement("span");
+  t.className = "dim-logo-fallback latin"; t.textContent = im.dataset.name;
+  im.replaceWith(t);
+}
+</script>
 </head>
 <body>
 
@@ -243,49 +256,49 @@
   <ul class="grid">
     <li><a class="card" href="#boogie" style="--tile:#c8c8c8" aria-label="Boogie 프로젝트 상세 보기">
       <span class="ph">01 Boogie</span>
-      <img src="assets/thumnail/thumb_boogie.png" alt="Boogie 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_boogie.png" alt="Boogie 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-01-boogie.png" alt="Boogie" data-name="Boogie" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-01-boogie.png" alt="Boogie" data-name="Boogie" onerror="fb(this,'l')">
         <span class="dim-title">파킨슨병 환자의 일상적 운동을 돕는<br>AR 댄스 게임 서비스</span>
         <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#coexist" style="--tile:#dee4ec" aria-label="Coexist 프로젝트 상세 보기">
       <span class="ph">02 Coexist</span>
-      <img src="assets/thumnail/thumb_coexist.png" alt="Coexist 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_coexist.png" alt="Coexist 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-02-coexist.png" alt="Coexist" data-name="Coexist" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-02-coexist.png" alt="Coexist" data-name="Coexist" onerror="fb(this,'l')">
         <span class="dim-title">홍익대 산업디자인과 졸업전시<br>웹사이트 디자인</span>
         <span class="dim-platform latin">Website</span>
       </span></a></li>
     <li><a class="card" href="#amo" style="--tile:#ebebeb" aria-label="A.Mo 프로젝트 상세 보기">
       <span class="ph">03 A.Mo</span>
-      <img src="assets/thumnail/thumb_A.Mo.png" alt="A.Mo 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_A.Mo.png" alt="A.Mo 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-03-amo.png" alt="A.Mo" data-name="A.Mo" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-03-amo.png" alt="A.Mo" data-name="A.Mo" onerror="fb(this,'l')">
         <span class="dim-title">미국 오스틴의 통근자를 위한<br>심리스 모빌리티 앱</span>
         <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#cleanet" style="--tile:linear-gradient(180deg,#808286,#e2e5ec)" aria-label="Cleanet 프로젝트 상세 보기">
       <span class="ph">04 Cleanet</span>
-      <img src="assets/thumnail/thumb_Cleanet.png" alt="Cleanet 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_Cleanet.png" alt="Cleanet 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-04-cleanet.png" alt="Cleanet" data-name="Cleanet" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-04-cleanet.png" alt="Cleanet" data-name="Cleanet" onerror="fb(this,'l')">
         <span class="dim-title">1인 청년 가구를 위한<br>청소 관리 모바일 App</span>
         <span class="dim-platform latin">Mobile App</span>
       </span></a></li>
     <li><a class="card" href="#moa" style="--tile:#c8c8c8" aria-label="moa 프로젝트 상세 보기">
       <span class="ph">05 moa</span>
-      <img src="assets/thumnail/thumb_moa.png" alt="moa 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_moa.png" alt="moa 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-05-moa.png" alt="moa" data-name="moa" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-05-moa.png" alt="moa" data-name="moa" onerror="fb(this,'l')">
         <span class="dim-title">7080 시니어의 일상을 돕는<br>AR 글래스 기반 AI 홈 어시스턴트</span>
         <span class="dim-platform latin">AR Glasses</span>
       </span></a></li>
     <li><a class="card" href="#beti" style="--tile:#c8c8c8" aria-label="Beti 프로젝트 상세 보기">
       <span class="ph">06 Beti</span>
-      <img src="assets/thumnail/thumb_Beti.png" alt="Beti 프로젝트 썸네일" loading="lazy" onerror="this.remove()">
+      <img src="assets/thumnail/thumb_Beti.png" alt="Beti 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
-        <img class="dim-logo" src="assets/logo-06-beti.png" alt="Beti" data-name="Beti" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'dim-logo-fallback latin',textContent:this.dataset.name}))">
+        <img class="dim-logo" src="assets/logo-06-beti.png" alt="Beti" data-name="Beti" onerror="fb(this,'l')">
         <span class="dim-title">임산부와 태아의 교감을 돕는<br>헬스케어 제품 디스플레이 디자인</span>
         <span class="dim-platform latin">Product Display</span>
       </span></a></li>
@@ -318,14 +331,17 @@
   /* 파일 이름 규칙 찾기: prefix 대소문자나 확장자(jpg/png)가 조금 달라도 1~3번 이미지로 맞는 규칙을 알아냄 */
   var EXTS = ["jpg", "png", "jpeg"];
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
-  function srcOf(p, c, n) { return "assets/" + p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
+  var BASES = ["assets/", ""];   /* assets 폴더 안과 저장소 맨 위(루트) 둘 다 찾아봄 */
+  function srcOf(p, c, n) { return c.base + p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
   function probe(p, done) {
     var tries = [], seen = {};
     for (var n = 1; n <= 3; n++) {
-      [p.prefix, p.name, p.folder, p.id].forEach(function (pre) {
-        EXTS.forEach(function (ext) {
-          var key = pre + "|" + ext + "|" + n;
-          if (!seen[key]) { seen[key] = 1; tries.push({ c: { pre: pre, ext: ext }, n: n }); }
+      BASES.forEach(function (base) {
+        [p.prefix, p.name, p.folder, p.id].forEach(function (pre) {
+          EXTS.forEach(function (ext) {
+            var key = base + "|" + pre + "|" + ext + "|" + n;
+            if (!seen[key]) { seen[key] = 1; tries.push({ c: { base: base, pre: pre, ext: ext }, n: n }); }
+          });
         });
       });
     }
