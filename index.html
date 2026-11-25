@@ -110,7 +110,7 @@
   .card .dim-logo { display: block; width: 64px; height: 20px; object-fit: contain; object-position: left center; }
   .card .dim-logo-fallback { font-weight: 700; font-size: 18px; line-height: 20px; }
   .card .dim-title { margin-top: 8px; font-weight: 500; font-size: 28px; line-height: 1.5; word-break: keep-all; }
-  .card .dim-platform { margin-top: 32px; font-weight: 300; font-size: 16px; line-height: 1.4; }
+  .card .dim-platform { margin-top: 22px; /* 32px → 22px: 로고+소개만 10px 아래로, 플랫폼 줄은 제자리 */ font-weight: 300; font-size: 16px; line-height: 1.4; }
   /* 카드가 좁아 28px 글자가 넘칠 때만 카드 너비에 맞춰 줄어듦 */
   @container (max-width: 560px) { .card .dim-title { font-size: 5cqw; } }
   .card:hover .dim, .card:focus-visible .dim { opacity: 1; }
@@ -136,15 +136,31 @@
   }
   .pager a { font-weight: 500; font-size: 16px; color: var(--text); text-decoration: none; opacity: .2; transition: opacity .2s ease; }
   .pager a:hover, .pager a:focus-visible { opacity: 1; }
-  .pager a:last-child { margin-left: auto; } /* 이전 링크가 없어도 '다음'은 오른쪽에 */
+  .pager a.next { margin-left: auto; } /* 이전 링크가 없어도 '다음'은 오른쪽에 */
 
 
   /* 홈 요소 순차 등장: 소개 문구 → 카드 순서로 빠르게 떠오름 */
   .reveal-in {
-    animation: riseIn .45s cubic-bezier(.2,.7,.2,1) both;
-    animation-delay: calc(var(--i, 0) * 45ms);
+    animation: riseIn .9s cubic-bezier(.22,1,.36,1) both;   /* 처음엔 부드럽게 올라오다 천천히 멈추는 곡선 */
+    animation-delay: calc(var(--i, 0) * 70ms);
+    will-change: opacity, transform;
   }
-  @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(28px); filter: blur(6px); }
+    60%  { filter: blur(0); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+  .card.is-soon { cursor: default; }
+  /* Coming soon 태그: 호버하면 카드 오른쪽 상단에 나타남 */
+  .soon-tag {
+    position: absolute; top: 4.5cqw; right: 4.5cqw; z-index: 2;
+    background: #fff; color: #000;
+    font-weight: 500; font-size: 14px; line-height: 1; letter-spacing: .01em;
+    padding: 9px 14px; border-radius: 999px; white-space: nowrap;
+    opacity: 0; transform: translateY(-6px);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.2,.7,.2,1);
+  }
+  .card:hover .soon-tag { opacity: 1; transform: none; transition-delay: .1s; }
 
   /* Footer */
   footer {
@@ -297,14 +313,16 @@ function fb(im, kind) {
         <span class="dim-title">7080 시니어의 일상을 돕는<br>AR 글래스 기반 AI 홈 어시스턴트</span>
         <span class="dim-platform latin">AR Glasses</span>
       </span></a></li>
-    <li><a class="card" href="#beti" style="--tile:#c8c8c8" aria-label="Beti 프로젝트 상세 보기">
+    <!-- Beti: 준비 중. 클릭 불가(href 없음) + 호버 시 Coming soon 표시. 공개할 때는 아래 a 태그에 href="#beti"를 다시 넣고, 아래 스크립트의 PROJECTS에 beti 줄을 복원하세요. -->
+    <li><a class="card is-soon" style="--tile:#c8c8c8" aria-disabled="true" aria-label="Beti 프로젝트 (Coming soon)">
       <span class="ph">06 Beti</span>
       <img src="assets/thumnail/thumb_Beti.png" alt="Beti 프로젝트 썸네일" loading="lazy" onerror="fb(this,'t')">
       <span class="dim">
         <img class="dim-logo" src="assets/logo-06-beti.png" alt="Beti" data-name="Beti" onerror="fb(this,'l')">
         <span class="dim-title">임산부와 태아의 교감을 돕는<br>헬스케어 제품 디스플레이 디자인</span>
         <span class="dim-platform latin">Product Display</span>
-      </span></a></li>
+      </span>
+      <span class="soon-tag latin">Coming soon</span></a></li>
   </ul>
 </main>
 
@@ -327,8 +345,9 @@ function fb(im, kind) {
     { id: "coexist", name: "Coexist", folder: "coexist", prefix: "coexist", count: 40 },
     { id: "amo",     name: "A.Mo",    folder: "A.Mo",    prefix: "A.Mo",    count: 40 },
     { id: "cleanet", name: "Cleanet", folder: "cleanet", prefix: "cleanet", count: 40 },
-    { id: "moa",     name: "moa",     folder: "moa",     prefix: "moa",     count: 40 },
-    { id: "beti",    name: "Beti",    folder: "Beti",    prefix: "Beti",    count: 40 }
+    { id: "moa",     name: "moa",     folder: "moa",     prefix: "moa",     count: 40 }
+    // Beti는 준비 중이라 목록에서 뺐습니다(이전/다음 이동에서 건너뜀). 공개할 때 아래 줄을 moa 줄 뒤에 복원하세요.
+    // , { id: "beti",    name: "Beti",    folder: "Beti",    prefix: "Beti",    count: 40 }
   ];
 
   /* 파일 이름 규칙 찾기: prefix 대소문자나 확장자(jpg/png)가 조금 달라도 1~3번 이미지로 맞는 규칙을 알아냄 */
@@ -340,11 +359,17 @@ function fb(im, kind) {
   var probeCache = {};
   function probe(p, done) {
     var entry = probeCache[p.id];
-    if (entry) { if (entry.cbs) entry.cbs.push(done); else done(entry.rule); return; }
+    if (entry) { if (entry.cbs) entry.cbs.push(done); else done(entry.rule, entry.stored); return; }
+    // 이전 방문에서 찾아 둔 규칙이 있으면 확인 과정 없이 바로 사용 (잘못된 규칙이면 renderProject가 지우고 다시 찾음)
+    try {
+      var saved = JSON.parse(localStorage.getItem("rule1:" + p.id));
+      if (saved && saved.ext) { probeCache[p.id] = { rule: saved, stored: true }; done(saved, true); return; }
+    } catch (e) {}
     entry = probeCache[p.id] = { cbs: [done] };
     function finish(rule) {
       var cbs = entry.cbs; delete entry.cbs; entry.rule = rule;
-      cbs.forEach(function (f) { f(rule); });
+      if (rule) { try { localStorage.setItem("rule1:" + p.id, JSON.stringify(rule)); } catch (e) {} }
+      cbs.forEach(function (f) { f(rule, false); });
     }
     function batch(n) {
       if (n > 3) return finish(null);
@@ -357,19 +382,11 @@ function fb(im, kind) {
           });
         });
       });
-      var res = new Array(cands.length), settled = false;
-      function check() {                       // 우선순위가 높은 후보부터 결과가 확정되면 바로 채택
-        if (settled) return;
-        for (var k = 0; k < cands.length; k++) {
-          if (res[k] === undefined) return;
-          if (res[k]) { settled = true; return finish(cands[k]); }
-        }
-        settled = true; batch(n + 1);
-      }
-      cands.forEach(function (c, k) {
+      var fails = 0, settled = false;
+      cands.forEach(function (c) {             // 가장 먼저 로드된 후보를 바로 채택 (나머지 404를 기다리지 않음)
         var im = new Image();
-        im.onload = function () { res[k] = true; check(); };
-        im.onerror = function () { res[k] = false; check(); };
+        im.onload = function () { if (!settled) { settled = true; finish(c); } };
+        im.onerror = function () { if (!settled && ++fails === cands.length) { settled = true; batch(n + 1); } };
         im.src = srcOf(p, c, n);
       });
     }
@@ -413,10 +430,10 @@ function fb(im, kind) {
     // 속도: 이미지 자리를 순서대로 먼저 만들어 두고, 위쪽부터 3장씩만 동시에 내려받음
     // (40장을 한꺼번에 요청하면 맨 위 이미지가 늦게 뜸). 없는 번호가 연속 5번 나오면 거기서 멈춤.
     var token = ++renderToken;
-    probe(p, function (c) {
+    probe(p, function (c, stored) {
       if (token !== renderToken) return;
       if (!c) { missing.hidden = false; return; }
-      var imgs = [], nextIdx = 0, active = 0, missRun = 0, PAR = 3;
+      var imgs = [], nextIdx = 0, active = 0, missRun = 0, loaded = 0, PAR = 3;
       for (var n = 1; n <= p.count; n++) {
         var img = document.createElement("img");
         img.alt = p.name + " 프로젝트 상세 " + n;
@@ -430,20 +447,31 @@ function fb(im, kind) {
             var im = imgs[idx];
             active++;
             function settle(ok) {
-              if (ok) missRun = 0; else { missRun++; im.remove(); }
-              active--; pump();
+              if (ok) { missRun = 0; loaded++; } else { missRun++; im.remove(); }
+              active--;
+              if (missRun >= 5 && !loaded && stored && token === renderToken) {   // 저장된 규칙이 낡았으면 지우고 처음부터 다시 찾음
+                try { localStorage.removeItem("rule1:" + p.id); } catch (e) {}
+                delete probeCache[p.id];
+                renderProject(i); return;
+              }
+              pump();
             }
             im.dataset.started = "1";
             // 확장자가 섞여 있어도 되도록, 모든 확장자를 동시에 요청 (먼저 찾은 확장자가 우선, 이미 받은 이미지를 그대로 사용)
             var exts = [c.ext].concat(EXTS.filter(function (x) { return x !== c.ext; }));
             var srcs = exts.map(function (x) { return srcOf(p, { base: c.base, pre: c.pre, ext: x }, idx + 1); });
-            findFirst(srcs, idx < 2, function (w) {
+            function got(w) {
               if (token !== renderToken) { active--; return; }
               if (!w) { settle(false); return; }
               w.alt = im.alt; w.decoding = "async"; w.dataset.started = "1";
               if (im.parentNode) im.replaceWith(w);
               imgs[idx] = w;
               settle(true);
+            }
+            // 대부분은 첫 확장자 한 번의 요청으로 끝남. 없을 때만 나머지 확장자를 동시에 요청
+            findFirst(srcs.slice(0, 1), idx < 2, function (w) {
+              if (w || token !== renderToken) return got(w);
+              findFirst(srcs.slice(1), idx < 2, got);
             });
           })(nextIdx++);
         }
@@ -455,7 +483,11 @@ function fb(im, kind) {
     var prev = PROJECTS[i - 1], next = PROJECTS[i + 1];
     var pager = el("div", "pager latin");
     if (prev) pager.appendChild(link("#" + prev.id, "← Prev: " + prev.name));
-    pager.appendChild(next ? link("#" + next.id, "Next: " + next.name + " →") : link("#", "Home →"));
+    if (next) {                                   // 마지막 프로젝트에는 Home 화살표 없이 Prev만 표시
+      var nextLink = link("#" + next.id, "Next: " + next.name + " →");
+      nextLink.className = "next";
+      pager.appendChild(nextLink);
+    }
     view.appendChild(pager);
 
     document.title = p.name + " · EunjiWoo";
@@ -468,6 +500,7 @@ function fb(im, kind) {
     var id = decodeURIComponent(location.hash.slice(1));
     var i = PROJECTS.findIndex(function (p) { return p.id === id; });
     if (i !== -1 && !onProject) homeScroll = window.scrollY;   // 목록에서 나가기 전 위치 기억
+    if (i !== -1) warmProject(PROJECTS[i]);                    // 화면 전환 애니메이션 중에 미리 이미지 요청 시작 (링크로 바로 들어와도 동일)
 
     // 새 화면을 보여주고(처음 로드 땐 애니메이션 없이) 스크롤 위치를 맞춤
     function show(el) {
@@ -550,16 +583,18 @@ function fb(im, kind) {
   }
 
   /* 카드에 마우스를 올리거나 터치하는 순간 미리 이미지 규칙을 찾고 첫 이미지 2장을 받아 둠 → 클릭하면 바로 뜸 */
-  function warm(e) {
-    var a = e.target.closest ? e.target.closest("a.card") : null;
-    if (!a) return;
-    var p = PROJECTS.filter(function (x) { return "#" + x.id === a.getAttribute("href"); })[0];
+  function warmProject(p) {
     if (!p || p.warmed) return;
     p.warmed = true;
     probe(p, function (c) {
       if (!c) return;
       for (var n = 1; n <= 2; n++) new Image().src = srcOf(p, c, n);
     });
+  }
+  function warm(e) {
+    var a = e.target.closest ? e.target.closest("a.card") : null;
+    if (!a) return;
+    warmProject(PROJECTS.filter(function (x) { return "#" + x.id === a.getAttribute("href"); })[0]);
   }
   var gridEl = document.querySelector(".grid");
   ["mouseover", "focusin", "touchstart"].forEach(function (t) {
