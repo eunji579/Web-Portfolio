@@ -127,7 +127,7 @@
   .is-leaving { opacity: 0; }
   .is-entering { animation: viewIn .5s cubic-bezier(.2,.7,.2,1) both; }
   @keyframes viewIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  .long-image { max-width: 1200px; margin: 0 auto; background: #f4f4f4; }
+  .long-image { width: 100%; max-width: none; margin: 0; background: #fff; } /* 좌우 여백 없이 화면 가득 */
   .long-image img { display: block; width: 100%; height: auto; } /* 긴 이미지를 잘라내지 않고 그대로 이어서 스크롤 */
   /* 상세 이미지 위에 얹는 '웹사이트 보러가기' 버튼 (크기는 이미지 너비에 비례, 작은 화면에서는 최소 크기 유지) */
   .shot { position: relative; container-type: inline-size; }
