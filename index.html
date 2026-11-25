@@ -178,25 +178,46 @@
 </style>
 <script>
 /* 이미지가 assets/ 안에 없으면 저장소 맨 위(루트) 등 다른 위치도 차례로 찾아봄 */
+/* 후보 주소들을 동시에 요청하고, 존재하는 것 중 앞쪽(우선순위 높은) 후보를 채택. 없으면 null */
+function findFirst(srcs, high, cb) {
+  var res = new Array(srcs.length), ims = [], done = false;
+  function check() {
+    if (done) return;
+    for (var k = 0; k < srcs.length; k++) {
+      if (res[k] === undefined) return;          // 우선순위 높은 후보가 아직 확인 중
+      if (res[k]) { done = true; return cb(ims[k]); }
+    }
+    done = true; cb(null);
+  }
+  if (!srcs.length) { done = true; return cb(null); }
+  srcs.forEach(function (s, k) {
+    var im = new Image(); ims[k] = im;
+    if (high) im.setAttribute("fetchpriority", "high");
+    im.onload = function () { res[k] = true; check(); };
+    im.onerror = function () { res[k] = false; check(); };
+    im.src = s;
+  });
+}
+
 function fb(im, kind) {
-  // 확장자도 png / jpg / jpeg / gif / svg / webp 순서로 바꿔가며 찾음 (폴더 위치 × 확장자)
-  if (!im.dataset.base) {
-    var first = im.getAttribute("src");
-    im.dataset.first = first;
-    im.dataset.base = first.split("/").pop().replace(/\.[^.]+$/, "");
-  }
+  // 폴더 위치 × 확장자(png / jpg / jpeg / gif / svg / webp)를 한꺼번에 동시에 찾음
+  var first = im.getAttribute("src");
+  var base = first.split("/").pop().replace(/\.[^.]+$/, "");
   var dirs = kind === "t" ? ["assets/thumnail/", "thumnail/", "assets/thumbnail/", "thumbnail/", ""] : ["assets/", ""];
-  var exts = ["png", "jpg", "jpeg", "gif", "svg", "webp"];
-  var i = +(im.dataset.i || 0);
-  while (i < dirs.length * exts.length) {
-    var cand = dirs[Math.floor(i / exts.length)] + im.dataset.base + "." + exts[i % exts.length];
-    i++;
-    if (cand !== im.dataset.first) { im.dataset.i = i; im.src = cand; return; }
-  }
-  if (kind === "t") { im.remove(); return; }
-  var t = document.createElement("span");
-  t.className = "dim-logo-fallback latin"; t.textContent = im.dataset.name;
-  im.replaceWith(t);
+  var exts = ["png", "jpg", "jpeg", "gif", "svg", "webp"], srcs = [];
+  dirs.forEach(function (d) { exts.forEach(function (e) { var s = d + base + "." + e; if (s !== first) srcs.push(s); }); });
+  im.onerror = null;
+  findFirst(srcs, false, function (w) {
+    if (w) {
+      w.className = im.className; w.alt = im.alt;
+      if (im.dataset.name) w.dataset.name = im.dataset.name;
+      im.replaceWith(w); return;
+    }
+    if (kind === "t") { im.remove(); return; }
+    var t = document.createElement("span");
+    t.className = "dim-logo-fallback latin"; t.textContent = im.dataset.name;
+    im.replaceWith(t);
+  });
 }
 </script>
 </head>
@@ -311,7 +332,7 @@ function fb(im, kind) {
   ];
 
   /* 파일 이름 규칙 찾기: prefix 대소문자나 확장자(jpg/png)가 조금 달라도 1~3번 이미지로 맞는 규칙을 알아냄 */
-  var EXTS = ["jpg", "png", "gif", "jpeg"];
+  var EXTS = ["jpg", "png", "gif", "jpeg", "webp", "svg"];
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
   var BASES = ["assets/", ""];   /* assets 폴더 안과 저장소 맨 위(루트) 둘 다 찾아봄 */
   function srcOf(p, c, n) { return c.base + p.folder + "/" + c.pre + "-" + pad(n) + "." + c.ext; }
@@ -412,16 +433,21 @@ function fb(im, kind) {
               if (ok) missRun = 0; else { missRun++; im.remove(); }
               active--; pump();
             }
-            // 같은 프로젝트 안에서 jpg / png / gif가 섞여 있어도 되도록, 찾은 확장자를 먼저 시도하고 안 되면 나머지 확장자를 차례로 시도
-            var exts = [c.ext].concat(EXTS.filter(function (x) { return x !== c.ext; })), k = 0;
-            function attempt() { im.src = srcOf(p, { base: c.base, pre: c.pre, ext: exts[k] }, idx + 1); }
-            im.onload = function () { settle(true); };
-            im.onerror = function () { if (++k < exts.length) attempt(); else settle(false); };
-            if (idx < 2) im.setAttribute("fetchpriority", "high");
-            attempt();
+            im.dataset.started = "1";
+            // 확장자가 섞여 있어도 되도록, 모든 확장자를 동시에 요청 (먼저 찾은 확장자가 우선, 이미 받은 이미지를 그대로 사용)
+            var exts = [c.ext].concat(EXTS.filter(function (x) { return x !== c.ext; }));
+            var srcs = exts.map(function (x) { return srcOf(p, { base: c.base, pre: c.pre, ext: x }, idx + 1); });
+            findFirst(srcs, idx < 2, function (w) {
+              if (token !== renderToken) { active--; return; }
+              if (!w) { settle(false); return; }
+              w.alt = im.alt; w.decoding = "async"; w.dataset.started = "1";
+              if (im.parentNode) im.replaceWith(w);
+              imgs[idx] = w;
+              settle(true);
+            });
           })(nextIdx++);
         }
-        if (missRun >= 5) imgs.forEach(function (im) { if (!im.getAttribute("src")) im.remove(); });
+        if (missRun >= 5) imgs.forEach(function (im) { if (!im.dataset.started) im.remove(); });
       }
       pump();
     });
