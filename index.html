@@ -129,6 +129,21 @@
   @keyframes viewIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   .long-image { max-width: 1200px; margin: 0 auto; background: #f4f4f4; }
   .long-image img { display: block; width: 100%; height: auto; } /* 긴 이미지를 잘라내지 않고 그대로 이어서 스크롤 */
+  /* 상세 이미지 위에 얹는 '웹사이트 보러가기' 버튼 (크기는 이미지 너비에 비례, 작은 화면에서는 최소 크기 유지) */
+  .shot { position: relative; container-type: inline-size; }
+  .cta {
+    position: absolute; display: inline-flex; align-items: center; justify-content: center;
+    gap: clamp(6px, .62cqw, 12px);
+    height: clamp(38px, 3.33cqw, 64px); padding: 0 clamp(16px, 1.25cqw, 24px);
+    border-radius: 999px; background: #ff3fb6; color: #fff;
+    font-weight: 600; font-size: clamp(13px, 1.146cqw, 22px); line-height: 1;
+    text-decoration: none; white-space: nowrap;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .cta svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+  .cta:hover, .cta:focus-visible { background: #e8309f; }
+  .cta:hover svg, .cta:focus-visible svg { transform: translateX(3px); }
+  .cta:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
   .missing { padding: 160px 24px; text-align: center; font-size: 16px; line-height: 1.7; color: rgba(0,0,0,.5); }
   .pager {
     max-width: 1200px; margin: 0 auto; padding: 40px 24px 96px;
@@ -342,7 +357,10 @@ function fb(im, kind) {
   */
   var PROJECTS = [
     { id: "boogie",  name: "Boogie",  folder: "boogie",  prefix: "boogie",  count: 40 },
-    { id: "coexist", name: "Coexist", folder: "coexist", prefix: "coexist", count: 40 },
+    { id: "coexist", name: "Coexist", folder: "coexist", prefix: "coexist", count: 40,
+      /* 11번 이미지(coexist-11) 위에 '웹사이트 보러가기' 버튼을 얹음. x, y는 이미지 안에서 버튼 왼쪽 위 위치(%) — 1920×1080 기준 (320, 262).
+         이미지 파일 안에 버튼이 이미 그려져 있다면 지워야 두 개로 겹쳐 보이지 않습니다. */
+      cta: { n: 11, label: "웹사이트 보러가기", href: "https://hongikid.ac.kr/degreeshow/2026/", x: 16.67, y: 24.26 } },
     { id: "amo",     name: "A.Mo",    folder: "A.Mo",    prefix: "A.Mo",    count: 40 },
     { id: "cleanet", name: "Cleanet", folder: "cleanet", prefix: "cleanet", count: 40 },
     { id: "moa",     name: "moa",     folder: "moa",     prefix: "moa",     count: 40 }
@@ -412,6 +430,28 @@ function fb(im, kind) {
     return a;
   }
 
+  /* 이미지 위에 버튼을 얹기: 이미지를 감싸는 상자 안에서 %로 위치를 잡아서 화면 크기가 변해도 같은 자리에 붙어 있음 */
+  function withCta(img, cta) {
+    var box = el("div", "shot");
+    box.appendChild(img);
+    var a = link(cta.href, cta.label);
+    a.className = "cta";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.style.left = cta.x + "%";
+    a.style.top = cta.y + "%";
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    var path = document.createElementNS(ns, "path");
+    path.setAttribute("d", "M4 12h16M14 6l6 6-6 6");
+    svg.appendChild(path);
+    a.appendChild(svg);
+    box.appendChild(a);
+    return box;
+  }
+
   var renderToken = 0;
   function renderProject(i) {
     var p = PROJECTS[i];
@@ -464,7 +504,8 @@ function fb(im, kind) {
               if (token !== renderToken) { active--; return; }
               if (!w) { settle(false); return; }
               w.alt = im.alt; w.decoding = "async"; w.dataset.started = "1";
-              if (im.parentNode) im.replaceWith(w);
+              var node = (p.cta && p.cta.n === idx + 1) ? withCta(w, p.cta) : w;
+              if (im.parentNode) im.replaceWith(node);
               imgs[idx] = w;
               settle(true);
             }
